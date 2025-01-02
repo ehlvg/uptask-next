@@ -3,18 +3,18 @@
 @tailwind utilities;
 
 .title {
-    font-family: var(--font-jersey), sans-serif !important;
+  font-family: var(--font-jersey), sans-serif !important;
 }
 
 .subtitle {
-    font-family: var(--font-fira-mono), monospaced !important;
+  font-family: var(--font-fira-mono), monospace !important;
 }
 
 .separator {
-    width: 100% !important;
-    flex-grow: 1 !important;
+  width: 100% !important;
+  flex-grow: 1 !important;
 }
 
 .radix-themes {
-    --default-font-family: var(--font-fira-mono), monospaced !important;
+  --default-font-family: var(--font-fira-mono), monospace !important;
 }
