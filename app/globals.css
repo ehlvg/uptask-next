@@ -2,20 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+.title {
+    font-family: var(--font-jersey), sans-serif !important;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.subtitle {
+    font-family: var(--font-fira-mono), monospaced !important;
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+.separator {
+    width: 100% !important;
+    flex-grow: 1 !important;
+}
+
+.radix-themes {
+    --default-font-family: var(--font-fira-mono), monospaced !important;
 }
