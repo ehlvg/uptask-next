@@ -16,7 +16,6 @@ export default function Home() {
             setMessage(error.message);
         } else {
             setMessage('Login successful!');
-            // Redirect to dashboard
             window.location.href = '/dashboard';
         }
     };
