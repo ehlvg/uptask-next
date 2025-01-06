@@ -49,7 +49,7 @@ export default function NewTaskList({ onClose }: NewTaskListProps) {
 
   return (
     <Dialog.Root defaultOpen>
-      <Dialog.Content maxWidth={{ initial: "200px", md: "250px" }}>
+      <Dialog.Content maxWidth={{ initial: "250px" }}>
         <Dialog.Title>Create New Task List</Dialog.Title>
         <Flex direction="column" gap="3">
           <Flex gap="3">

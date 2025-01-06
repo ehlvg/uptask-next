@@ -1,38 +1,59 @@
+import BackButton from "@/app/components/BackButton";
+import SignOutButton from "@/app/components/SignOutButton";
 import { supabase } from "@/utils/supabase";
-import { Flex } from "@radix-ui/themes";
-import { list } from "postcss";
+import { ArrowLeftIcon, ExitIcon, PersonIcon } from "@radix-ui/react-icons";
+import {
+  Flex,
+  Heading,
+  IconButton,
+  Inset,
+  Separator,
+  Text,
+} from "@radix-ui/themes";
 
-export default async function TaskList({
+export default async function ListPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  // Get TaskList tasks from the database using the id
-
-  const tasks = await getTasksByListId((await params).id);
-  console.log(tasks);
-  async function getTasksByListId(listId: string) {
-    const { data, error } = await supabase
-      .from("user_tasks")
-      .select("*")
-      .eq("task_list_id", listId);
-
-    if (error) {
-      console.error("Error fetching tasks:", error);
-      return [];
-    }
-
-    return data;
-  }
+  console.log((await params).id);
+  const { data: tasks } = await supabase
+    .from("user_tasks")
+    .select()
+    .eq("task_list_id", (await params).id);
 
   return (
-    <Flex
-      gap={"2"}
-      direction={"column"}
-      maxWidth={"500px"}
-      mx={"auto"}
-      my={"3"}
-      justify={"center"}
-    ></Flex>
+    <Flex direction="column" gap="3">
+      <Inset
+        side={"top"}
+        className="popup-animate"
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          backgroundColor: "var(--color-background)",
+          zIndex: 1000,
+        }}
+      >
+        <Flex justify={"start"} align={"center"} p="2" gap="2">
+          <BackButton />
+          <Heading size={"5"} mr={"auto"}>
+            Dashboard
+          </Heading>
+          <SignOutButton />
+
+          <IconButton variant="ghost">
+            <PersonIcon />
+          </IconButton>
+        </Flex>
+
+        <Separator
+          mb="auto"
+          orientation={"horizontal"}
+          className={"separator"}
+        />
+      </Inset>
+    </Flex>
   );
 }

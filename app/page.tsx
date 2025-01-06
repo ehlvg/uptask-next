@@ -31,7 +31,12 @@ export default function Home() {
   };
   return (
     <>
-      <Flex direction="column" gap="2" mx={{ initial: "auto" }}>
+      <Flex
+        direction="column"
+        gap="2"
+        mx={{ initial: "auto" }}
+        className="popup-animate"
+      >
         <div className="w-full max-w-md space-y-6 rounded-lg bg-white p-6 shadow-md">
           <Heading size="9" className="title">
             uptask<span className="text-orange-500">.</span>

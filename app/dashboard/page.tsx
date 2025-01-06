@@ -13,11 +13,20 @@ import {
   Separator,
   Text,
 } from "@radix-ui/themes";
-import { ExitIcon } from "@radix-ui/react-icons";
+import {
+  DotsHorizontalIcon,
+  ExitIcon,
+  PersonIcon,
+  TrashIcon,
+} from "@radix-ui/react-icons";
 import { TaskList } from "@/app/types/taskList";
 import NewTaskList from "../list/new/page";
+import ListCard from "../components/ListCard";
+import EditListPopup from "../components/EditListPopup";
 
 export default function Dashboard() {
+  const [editingList, setEditingList] = useState<TaskList | null>(null);
+  const [showEditPopup, setShowEditPopup] = useState(false);
   const [showAddList, setShowAddList] = useState(false);
   const [taskLists, setTaskLists] = useState<TaskList[]>([]);
   const [loading, setLoading] = useState(false);
@@ -47,12 +56,24 @@ export default function Dashboard() {
       justify={"between"}
       minWidth={{ initial: "95%" }}
     >
-      <Inset side={"top"}>
-        <Flex justify={"between"} align={"center"}>
-          <Heading size={"5"} className={"title"}>
+      <Inset
+        side={"top"}
+        className="popup-animate"
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          backgroundColor: "var(--color-background)",
+          zIndex: 1000,
+        }}
+      >
+        <Flex justify={"start"} align={"center"} p="2" gap="2">
+          <Heading size={"5"} mr={"auto"}>
             Dashboard
           </Heading>
           <IconButton
+            variant="ghost"
             onClick={async () => {
               await supabase.auth.signOut();
               window.location.href = "/";
@@ -60,41 +81,37 @@ export default function Dashboard() {
           >
             <ExitIcon />
           </IconButton>
-        </Flex>
-      </Inset>
 
-      <Separator orientation={"horizontal"} className={"separator"} />
+          <IconButton variant="ghost" onClick={() => {}}>
+            <PersonIcon />
+          </IconButton>
+        </Flex>
+
+        <Separator
+          mb="auto"
+          orientation={"horizontal"}
+          className={"separator"}
+        />
+      </Inset>
 
       {loading ? (
         <Text>Loading task lists...</Text>
       ) : taskLists.length === 0 ? (
         <Text>No task lists yet!</Text>
       ) : (
-        <Flex direction={"column"} gap={"2"} m={"2"}>
-          <ScrollArea scrollbars="vertical" style={{ maxHeight: "70vh" }}>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
-                gap: "16px",
-                width: "100%",
-              }}
-            >
+        <Flex direction={"column"} gap={"2"} m={"2"} mt={"9"}>
+          <Heading size="6">Task lists</Heading>
+          <ScrollArea scrollbars="vertical" style={{ height: "65vh" }}>
+            <div className="card-grid">
               {taskLists.map((taskList) => (
-                <Card
+                <ListCard
                   key={taskList.id}
-                  size={"1"}
-                  onClick={() => {
-                    window.location.href = `/list/${taskList.id}`;
+                  taskList={taskList}
+                  onEdit={() => {
+                    setEditingList(taskList);
+                    setShowEditPopup(true);
                   }}
-                  variant={"classic"}
-                  style={{ height: "100%" }}
-                >
-                  <Flex justify={"start"} gap={"2"}>
-                    <Text size={"3"}>{taskList.emoji}</Text>
-                    <Text size={"3"}>{taskList.name}</Text>
-                  </Flex>
-                </Card>
+                />
               ))}
             </div>
           </ScrollArea>
