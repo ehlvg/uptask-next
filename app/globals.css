@@ -17,4 +17,12 @@
 
 .radix-themes {
   --default-font-family: var(--font-fira-mono), monospace !important;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.emoji-input {
+  max-width: 36px;
 }
