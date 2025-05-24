@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>uptask</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/phosphor-icons"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    dialog::backdrop { background: rgba(0, 0, 0, 0.5); }
+    dialog { animation: fadeIn 0.3s ease; }
+    dialog[closing] { animation: fadeOut 0.2s ease forwards; }
+    @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+    @keyframes fadeOut { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.9); } }
+    select, input, button, textarea { outline: none; }
+  </style>
+</head>
+<body class="bg-white text-black p-4 sm:p-6 md:p-8">
+  <div class="max-w-4xl mx-auto grid md:grid-cols-2 gap-6">
+    <header class="col-span-2 flex items-center justify-between mb-6">
+      <div class="flex items-center gap-2 text-3xl font-semibold">
+        <i class="ph-check-square size-lg"></i>
+        <span>uptask</span>
+      </div>
+      <button onclick="openNewListDialog()" class="rounded-2xl bg-gray-200 text-black px-4 py-2 hover:bg-gray-300 transition">New List</button>
+    </header>
+
+    <div class="col-span-2 flex flex-col sm:flex-row items-center gap-4">
+      <div class="relative flex-1 flex items-center">
+        <div class="flex-1 relative">
+          <select id="listSelector" class="appearance-none w-full p-3 rounded-2xl border border-neutral-300 bg-white shadow-sm focus:ring-2 focus:ring-black focus:border-black transition" onchange="renderTasks()">
+            <option value="">Choose a list</option>
+          </select>
+          <i class="ph-caret-down size-md absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none"></i>
+        </div>
+        <button onclick="openRenameListDialog()" class="ml-2 w-10 h-10 rounded-full bg-gray-200 p-0 flex items-center justify-center hover:bg-gray-300 transition"><i class="ph-pencil-simple size-md"></i></button>
+        <button onclick="deleteCurrentList()" class="ml-2 w-10 h-10 rounded-full bg-gray-200 p-0 flex items-center justify-center hover:bg-red-200 transition"><i class="ph-trash size-md"></i></button>
+      </div>
+      <div class="relative flex-1">
+        <input id="searchInput" type="text" placeholder="Search tasks..." class="w-full p-3 rounded-2xl border border-neutral-300 bg-white shadow-sm focus:ring-2 focus:ring-black focus:border-black transition pl-10">
+        <i class="ph-magnifying-glass size-md absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-500 pointer-events-none"></i>
+      </div>
+    </div>
+
+    <div id="taskContainer" class="col-span-2"></div>
+
+    <!-- Floating add button -->
+    <button id="addTaskBtn" onclick="openTaskDialog()" class="fixed bottom-6 right-6 bg-black text-white w-14 h-14 flex items-center justify-center rounded-full shadow-lg hover:scale-110 transition-transform">
+      <i class="ph-plus size-lg"></i>
+    </button>
+
+    <!-- Dialogs -->
+    <dialog id="taskDialog" class="rounded-2xl p-6 max-w-sm w-full border border-neutral-300 shadow-xl">
+      <form method="dialog" onsubmit="handleSaveTask(event)">
+        <h2 id="taskDialogTitle" class="text-lg font-semibold mb-4">New Task</h2>
+        <input id="taskTitle" type="text" placeholder="Task title" required class="w-full rounded-2xl border border-neutral-300 p-3 mb-3 shadow-sm focus:ring-2 focus:ring-black focus:border-black">
+        <textarea id="taskDesc" placeholder="Description (optional)" class="w-full rounded-2xl border border-neutral-300 p-3 mb-3 shadow-sm focus:ring-2 focus:ring-black focus:border-black"></textarea>
+        <div class="flex flex-col sm:flex-row gap-3 mb-4">
+          <input id="taskDate" type="date" class="flex-1 rounded-2xl border border-neutral-300 p-3 shadow-sm focus:ring-2 focus:ring-black focus:border-black">
+          <input id="taskTime" type="time" class="flex-1 rounded-2xl border border-neutral-300 p-3 shadow-sm focus:ring-2 focus:ring-black focus:border-black">
+        </div>
+        <div class="flex justify-end gap-2">
+          <button type="submit" class="rounded-2xl bg-gray-200 text-black px-4 py-2 hover:bg-gray-300 transition">Save</button>
+          <button onclick="closeDialog(taskDialog)" type="button" class="rounded-2xl border border-neutral-300 px-4 py-2 hover:bg-gray-100 transition">Cancel</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="newListDialog" class="rounded-2xl p-6 max-w-sm w-full border border-neutral-300 shadow-xl">
+      <form method="dialog" onsubmit="handleCreateList(event)">
+        <h2 class="text-lg font-semibold mb-4">Create New List</h2>
+        <input id="newListTitle" type="text" placeholder="List name" required class="w-full rounded-2xl border border-neutral-300 p-3 mb-4 shadow-sm focus:ring-2 focus:ring-black focus:border-black">
+        <div class="flex justify-end gap-2">
+          <button type="submit" class="rounded-2xl bg-gray-200 text-black px-4 py-2 hover:bg-gray-300 transition">Create</button>
+          <button onclick="closeDialog(newListDialog)" type="button" class="rounded-2xl border border-neutral-300 px-4 py-2 hover:bg-gray-100 transition">Cancel</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="renameListDialog" class="rounded-2xl p-6 max-w-sm w-full border border-neutral-300 shadow-xl">
+      <form method="dialog" onsubmit="handleRenameList(event)">
+        <h2 class="text-lg font-semibold mb-4">Rename List</h2>
+        <input id="renameListTitle" type="text" placeholder="New list name" required class="w-full rounded-2xl border border-neutral-300 p-3 mb-4 shadow-sm focus:ring-2 focus:ring-black focus:border-black">
+        <div class="flex justify-end gap-2">
+          <button type="submit" class="rounded-2xl bg-gray-200 text-black px-4 py-2 hover:bg-gray-300 transition">Save</button>
+          <button onclick="closeDialog(renameListDialog)" type="button" class="rounded-2xl border border-neutral-300 px-4 py-2 hover:bg-gray-100 transition">Cancel</button>
+        </div>
+      </form>
+    </dialog>
+
+  </div>
+  <script>
+    function closeDialog(dlg) { dlg.setAttribute('closing',''); setTimeout(()=>{ dlg.close(); dlg.removeAttribute('closing'); },200); }
+    let editingTask=null;
+    const TaskAPI={
+      getAllLists:()=>JSON.parse(localStorage.getItem('lists')||'[]'),
+      saveLists:lists=>localStorage.setItem('lists',JSON.stringify(lists)),
+      createList:title=>{const l=TaskAPI.getAllLists(); const nl={id:Date.now().toString(),title,tasks:[]}; l.push(nl); TaskAPI.saveLists(l); return nl;},
+      getTasks:lid=>(TaskAPI.getAllLists().find(x=>x.id===lid)||{tasks:[]}).tasks,
+      saveTask:(lid,t)=>{const lls=TaskAPI.getAllLists();const ll=lls.find(x=>x.id===lid);if(!ll)return;const ex=ll.tasks.find(x=>x.id===t.id);if(ex){ll.tasks=ll.tasks.map(x=>x.id===t.id?t:x);}else ll.tasks.push(t);TaskAPI.saveLists(lls);},
+      deleteTask:(lid,tid)=>{const lls=TaskAPI.getAllLists();const ll=lls.find(x=>x.id===lid);if(!ll)return;ll.tasks=ll.tasks.filter(x=>x.id!==tid);TaskAPI.saveLists(lls);}
+    };
+    const listSel=document.getElementById('listSelector'), tc=document.getElementById('taskContainer'), searchInput=document.getElementById('searchInput');
+    const taskDialog=document.getElementById('taskDialog'), newListDialog=document.getElementById('newListDialog'), renameListDialog=document.getElementById('renameListDialog');
+    function renderLists(){const ls=TaskAPI.getAllLists();listSel.innerHTML='<option value="">Choose a list</option>';ls.forEach(x=>{let o=document.createElement('option');o.value=x.id;o.textContent=x.title;listSel.append(o);});}
+    function renderTasks(){const lid=listSel.value;if(!lid){tc.innerHTML='<p class="text-sm text-neutral-500">Select a list to view tasks.</p>';return;}let tasks=TaskAPI.getTasks(lid);const q=searchInput.value.toLowerCase();if(q)tasks=tasks.filter(t=>t.title.toLowerCase().includes(q)||t.desc.toLowerCase().includes(q));tc.innerHTML='';if(!tasks.length){tc.innerHTML='<p class="text-sm text-neutral-500">No tasks found.</p>';return;}tasks.forEach(t=>{let w=document.createElement('div');w.className='flex items-center justify-between p-4 bg-white border border-neutral-200 rounded-2xl mb-3 shadow transition-transform hover:scale-[1.02]';let l=document.createElement('div');l.className='flex items-center gap-3';let cb=document.createElement('input');cb.type='checkbox';cb.checked=t.isDone;cb.className='form-checkbox w-5 h-5 text-black';cb.onchange=()=>{t.isDone=cb.checked;TaskAPI.saveTask(lid,t);renderTasks();};let info=document.createElement('div');info.innerHTML=`<div class="${t.isDone?'line-through text-neutral-400':''}">${t.title}</div>${t.desc?`<div class="text-xs text-neutral-500">${t.desc}</div>`:''}${(t.date||t.time)?`<div class="text-xs text-neutral-500">${new Date((t.date||'')+(t.time?`T${t.time}`:'')).toLocaleString()}</div>`:''}`;l.append(cb,info);let ctr=document.createElement('div');ctr.className='flex gap-2';let eb=document.createElement('button');eb.innerHTML='<i class="ph-pencil-simple"></i>';eb.className='text-neutral-500 hover:text-black';eb.onclick=()=>openTaskDialog(t);let db=document.createElement('button');db.innerHTML='<i class="ph-trash"></i>';db.className='text-neutral-500 hover:text-black';db.onclick=()=>{TaskAPI.deleteTask(lid,t.id);renderTasks();};ctr.append(eb,db);w.append(l,ctr);tc.append(w);});}
+    function openNewListDialog(){document.getElementById('newListTitle').value='';newListDialog.showModal();}
+    function handleCreateList(e){e.preventDefault();TaskAPI.createList(document.getElementById('newListTitle').value);renderLists();closeDialog(newListDialog);}
+    function openRenameListDialog(){if(!listSel.value)return alert('Select a list first');document.getElementById('renameListTitle').value=listSel.selectedOptions[0].text;renameListDialog.showModal();}
+    function handleRenameList(e){e.preventDefault();const id=listSel.value,val=document.getElementById('renameListTitle').value;let ls=TaskAPI.getAllLists();ls=ls.map(x=>x.id===id?{...x,title:val}:x);TaskAPI.saveLists(ls);renderLists();listSel.value=id;closeDialog(renameListDialog);}
+    function deleteCurrentList(){let ls=TaskAPI.getAllLists().filter(x=>x.id!==listSel.value);TaskAPI.saveLists(ls);renderLists();tc.innerHTML='';listSel.value='';}
+    function openTaskDialog(task){document.getElementById('taskDialogTitle').textContent=task?'Edit Task':'New Task';editingTask=task||null;document.getElementById('taskTitle').value=task?.title||'';document.getElementById('taskDesc').value=task?.desc||'';document.getElementById('taskDate').value=task?.date||'';document.getElementById('taskTime').value=task?.time||'';taskDialog.showModal();}
+    function handleSaveTask(e){e.preventDefault();const lid=listSel.value;if(!lid)return alert('Select a list first');const t={id:editingTask?editingTask.id:Date.now().toString(),title:document.getElementById('taskTitle').value,desc:document.getElementById('taskDesc').value,date:document.getElementById('taskDate').value,time:document.getElementById('taskTime').value,isDone:editingTask?.isDone||false};TaskAPI.saveTask(lid,t);closeDialog(taskDialog);renderTasks();}
+    searchInput.oninput=renderTasks;listSel.onchange=renderTasks;renderLists();
+  </script>
+</body>
+</html>
